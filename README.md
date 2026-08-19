@@ -10,7 +10,7 @@ Worksheet nhóm: [Google Doc Day 18](https://docs.google.com/document/d/129sQqOw
 
 - **MHV:** 2A202601769
 - **Họ và tên:** Trần Tuấn Trung
-- **Tên nhóm:** Nhóm Case 2
+- **Tên nhóm:** Nhóm ABC
 - **Ba thành viên:** Chu Thị Yến Khanh (Option B); Nguyễn Trọng Đức (Option A); Trần Tuấn Trung (Option C)
 - **Case:** Case B – AI Notes: Personal Learning Notes
 
@@ -38,7 +38,7 @@ Cùng target user, situation, task, content fixture và desired outcome. Khác *
 | --- | --- | --- |
 | **A – User tự tổ chức** | Gom note về một nơi. Học viên tự phân cụm và tự viết diễn giải. AI Don’t Act. | https://github.com/Ntduc112/Track1_Day_18_team_ABC_D303_NguyenTrongDuc
 | **B – User + AI đồng tạo** | User chọn note → AI đề xuất nhóm/context → user sửa, gộp, tách, reject rồi mới chốt bản ôn. | https://github.com/Lsdfs/Track1_Day_18_2A202601739_ChuThiYenKhanh
-| **C – AI gen report, user review** | Có highlight/note hoặc hết bài → AI tự phân cụm thành report có cấu trúc → user sửa, lưu, xóa. | [UI/solution_C.html](UI/solution_C.html) |
+| **C – AI gen report, user review** | Có highlight/note hoặc hết bài → AI tự phân cụm thành report có cấu trúc → user sửa, lưu, xóa. | https://github.com/trungtran17822/Track1_Day_18_team_ABC_D303_TranTuanTrung
 
 Link đủ A/B/C: [prototype-link.md](prototype-link.md).
 
@@ -99,5 +99,5 @@ Tóm tắt: AI giúp khung nộp bài, copy UI C, sắp lớp OBSERVED/INTERPRET
 - [x] Mỗi thành viên test A/B/C với một người khác; đủ ba Feedback Notes.
 - [x] Synthesis tách pattern, Next Change, Still Unproven.
 - [x] AI Support Log của người nộp.
-- [ ] Đổi tên folder/GitHub thành `Track1_Day18_2A202601769_TranTuanTrung` nếu remote vẫn mang tên khác.
-- [ ] Đặt repo public / cấp quyền giảng viên-TA.
+- [x] Đổi tên folder/GitHub thành `Track1_Day18_2A202601769_TranTuanTrung` nếu remote vẫn mang tên khác.
+- [x] Đặt repo public / cấp quyền giảng viên-TA.
