@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thuyết trình Option C · AI Notes Report · Trần Tuấn Trung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0f1115; --card:#181b22; --line:#2c313a; --text:#f3f4f6; --muted:#9ca3af; --purple:#a78bfa; --blue:#38bdf8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+    .deck { height: 100%; display: grid; grid-template-rows: 1fr 56px; }
+    .slide { display: none; padding: 48px 64px 24px; overflow: auto; }
+    .slide.on { display: block; }
+    h1 { font-size: 40px; font-weight: 900; letter-spacing: -.03em; line-height: 1.12; }
+    h2 { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+    .kicker { color: var(--purple); font-size: 13px; font-weight: 800; letter-spacing: .12em; margin-bottom: 12px; }
+    p, li { font-size: 19px; line-height: 1.45; color: #e5e7eb; }
+    ul, ol { padding-left: 22px; display: grid; gap: 10px; }
+    .muted { color: var(--muted); font-size: 15px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .card h3 { font-size: 15px; margin-bottom: 8px; color: var(--blue); }
+    .card p, .card li { font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 16px; }
+    th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 10px 8px; vertical-align: top; }
+    th { color: var(--muted); font-size: 13px; }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-top: 1px solid var(--line); background: #14171d; }
+    .nav button { background: #232830; color: #fff; border: 1px solid #3f4652; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+    a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <div id="slides">
+      <section class="slide on">
+        <div class="kicker">DAY 18 · OPTION C · CASE B AI NOTES</div>
+        <h1>AI tạo report, học viên review</h1>
+        <p style="margin-top:16px;max-width:820px">Highlight và ghi chú trên slide. AI tự phân cụm thành report có cấu trúc. User sửa, lưu vào Hộp Báo Cáo, hoặc xóa.</p>
+        <p class="muted">Trần Tuấn Trung · 2A202601769 · Nội dung bám worksheet 18.CP và phiên test Feedback 3</p>
+      </section>
+      <section class="slide">
+        <div class="kicker">18.CP1</div>
+        <h2>Hypothesis Problem</h2>
+        <p>Khi ôn lại bài, học viên khó tìm, hiểu lại và tổng hợp highlight/note vì chúng rải rác và mất ngữ cảnh → đọc lại cả deck hoặc tìm tool khác.</p>
+        <ul style="margin-top:16px">
+          <li>001–002: mất ngữ cảnh / không nhớ note dùng để làm gì.</li>
+          <li>003: highlight chỗ thú vị, không chỗ khó; ôn thì đọc hết slide + AI.</li>
+        </ul>
+        <p class="muted">Chưa đo tần suất, thời gian, hay ảnh hưởng điểm số. Practice Notes ≠ validation solution.</p>
+      </section>
+      <section class="slide">
+        <div class="kicker">18.CP2 · MEANINGFUL OPTIONS</div>
+        <h2>Cùng task, khác ai được phép chốt</h2>
+        <table>
+          <tr><th></th><th>Cơ chế</th><th>AI</th></tr>
+          <tr><td>A</td><td>Gom note; user tự cụm và diễn giải</td><td>Don’t Act</td></tr>
+          <tr><td>B</td><td>User chọn note → AI đề xuất nhóm → user xác nhận</td><td>Ask / co-create</td></tr>
+          <tr><td>C</td><td>Có highlight-note / hết bài → AI gen report</td><td>Act, user review</td></tr>
+        </table>
+        <p class="muted">A khác C: user tổ chức vs AI tổ chức trước. B khác C: user khởi tạo từng nhóm vs AI chạy rồi user review.</p>
+      </section>
+      <section class="slide">
+        <div class="kicker">18.CP3 · HUMAN CONTROL</div>
+        <h2>Option C</h2>
+        <div class="grid">
+          <div class="card"><h3>Expectation</h3><p>Banner: report là bản nháp AI; có thể gom sai hoặc hallucinate.</p></div>
+          <div class="card"><h3>Agency</h3><p>User chỉ bắt buộc highlight/note; vẫn sửa, lưu, xóa report.</p></div>
+          <div class="card"><h3>Evidence</h3><p>Cụm highlight, cụm note, tóm tắt; mỗi mục gắn số slide.</p></div>
+          <div class="card"><h3>Recovery</h3><p>Sửa rồi lưu, xóa bản, mở Hộp Báo Cáo, nhảy về slide nguồn.</p></div>
+        </div>
+      </section>
+      <section class="slide">
+        <div class="kicker">18.CP6 · FEEDBACK 3</div>
+        <h2>Tester mình hỏi đã làm gì</h2>
+        <ul>
+          <li>First action: click Hộp Báo Cáo, scroll slide, dò button.</li>
+          <li>Do dự: report lưu ở đâu? Ấn ghi chú trong report có lên slide không?</li>
+          <li>Có đọc nội dung report AI đưa ra.</li>
+          <li>Chọn C vì muốn report sinh ngay khi highlight/note.</li>
+          <li>Trade-off với A: A phải tự gom và tự sắp cụm.</li>
+          <li>Chống kỳ vọng: bản raw còn cơ bản.</li>
+        </ul>
+      </section>
+      <section class="slide">
+        <div class="kicker">BA FEEDBACK</div>
+        <h2>Không có option thắng</h2>
+        <p>Khanh’s tester chọn B. Đức’s tester chọn A. Tester của mình chọn C.</p>
+        <p style="margin-top:14px">Chung: cả ba dò UI trước, không đọc hướng dẫn; flow chưa tự giải thích. Khác: control vs automation.</p>
+        <p class="muted">Không chọn hộ tester. Next Change là sửa interaction, không đổi hypothesis thành “C đã đúng”.</p>
+      </section>
+      <section class="slide">
+        <div class="kicker">NEXT CHANGE · TỪ PHIÊN C</div>
+        <h2>Giữ AI Act, vá hai chỗ tester kẹt</h2>
+        <ol>
+          <li>Mỗi mục report có nút [Slide n] nhảy về nguồn.</li>
+          <li>Sau khi lưu, nói rõ report nằm ở Hộp Báo Cáo Đã Lưu.</li>
+        </ol>
+        <p class="muted"><a href="UI/solution_C.html">Mở prototype C</a> · Still unproven: C có giảm việc đọc lại cả deck không; user có bắt AI sai không.</p>
+      </section>
+      <section class="slide">
+        <div class="kicker">DEMO</div>
+        <h2>Click khi thuyết trình</h2>
+        <ol>
+          <li>Banner nhiệm vụ + “AI Act, bản nháp”.</li>
+          <li>Bôi đen → Highlights / Notes → report tự cập nhật.</li>
+          <li>Bấm [Slide n] trên một ghi chú.</li>
+          <li>Sửa rồi Lưu — chỉ Hộp Báo Cáo.</li>
+          <li>Mở hộp, bấm lại slide nguồn.</li>
+        </ol>
+      </section>
+    </div>
+    <div class="nav">
+      <button type="button" id="prev">← Trước</button>
+      <div id="pos" class="muted" style="margin:0">1 / 8</div>
+      <button type="button" id="next">Sau →</button>
+    </div>
+  </div>
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    let i = 0;
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, idx) => s.classList.toggle("on", idx === i));
+      document.getElementById("pos").textContent = (i + 1) + " / " + slides.length;
+    }
+    document.getElementById("prev").onclick = () => show(i - 1);
+    document.getElementById("next").onclick = () => show(i + 1);
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); show(i + 1); }
+      if (e.key === "ArrowLeft") show(i - 1);
+    });
+  </script>
+</body>
+</html>

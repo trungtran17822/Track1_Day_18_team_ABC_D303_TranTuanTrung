@@ -23,7 +23,7 @@
 
 ## Interview Record 2
 
-- **Interviewer:** Trần Tuấn Trung – 2A202601739
+- **Interviewer:** Trần Tuấn Trung – 2A202601769
 - **Mã người được phỏng vấn:** 002
 - **Đúng tiêu chí tuyển người:** Có
 

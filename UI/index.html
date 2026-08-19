@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLearn · Bài 7 · Day 18 - Design the Experiment - Human-Centered AI Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #121316;
+      --bg-card: #181a20;
+      --bg-topbar: #1c1f24;
+      --border-dark: #2c313a;
+      --border-subtle: #232730;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-faint: #6b7280;
+      --vlearn-blue: #0284c7;
+      --vlearn-blue-hover: #0369a1;
+      --ai-purple: #8b5cf6;
+      --slide-green: #7d9e88;
+      --slide-cream: #faf9f5;
+      --hl-yellow: #fef08a;
+      --hl-yellow-bg: #fef08a;
+      --hl-blue-bg: #bae6fd;
+      --green-success: #10b981;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      user-select: text !important;
+    }
+
+    /* ALL SLIDES AND TEXT ARE 100% SELECTABLE */
+    * {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    button, .dock-btn, .back-btn, .sidebar-toggle-btn, .sel-btn, .btn-action, .report-box-btn {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+
+    /* APP LAYOUT */
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 58px 1fr;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--border-dark);
+      padding: 0 16px 0 24px;
+      z-index: 40;
+    }
+    .top-left, .top-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+    .back-btn {
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .top-title {
+      max-width: 580px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 15px;
+      font-weight: 700;
+      color: #f3f4f6;
+    }
+    .report-box-top-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 92, 246, 0.16);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .report-box-top-btn:hover {
+      background: rgba(139, 92, 246, 0.28);
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #d1d5db;
+    }
+    .progress-track {
+      width: 120px;
+      height: 6px;
+      border-radius: 999px;
+      background: #374151;
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 999px;
+      transition: width .4s ease;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #1e4d7c;
+      color: #38bdf8;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    /* BODY */
+    .body {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      position: relative;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      min-height: 0;
+      overflow-y: auto;
+      background: #16181d;
+      border-right: 1px solid var(--border-dark);
+      display: flex;
+      flex-direction: column;
+    }
+    .side-head {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border-dark);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+    }
+    .sidebar-toggle-btn {
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .module-card {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-dark);
+      background: #1a1d24;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+    .module-card small {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lesson-section-title {
+      padding: 12px 16px 6px;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .lesson-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 8px;
+    }
+    .lesson-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 0;
+      background: transparent;
+      color: #e2e8f0;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .lesson-item:hover { background: #232832; }
+    .lesson-item.active { background: #203548; }
+    .lesson-state {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid #64748b;
+      display: grid;
+      place-items: center;
+      font-size: 8px;
+      color: #0284c7;
+    }
+    .lesson-item.active .lesson-state {
+      border-color: #0284c7;
+      background: #0284c7;
+      color: #fff;
+    }
+    .lesson-meta b {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f1f5f9;
+      line-height: 1.2;
+    }
+    .lesson-meta small {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* MAIN READER AREA */
+    .main {
+      position: relative;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-dark);
+      scroll-behavior: smooth;
+      padding: 16px 20px 140px;
+    }
+    .slides-wrapper {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    /* SLIDE CARD */
+    .slide-outer-card {
+      position: relative;
+      margin-bottom: 34px;
+      background: #16181d;
+      border-radius: 10px;
+      border: 1px solid var(--border-dark);
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .slide-outer-card.active-slide {
+      border-color: #0284c7;
+    }
+
+    /* SLIDE TOP BAR */
+    .slide-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .slide-pen-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #0284c7;
+      color: #fff;
+      border: 0;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+      transition: all .2s;
+    }
+    .slide-pen-btn:hover { background: #0369a1; transform: scale(1.05); }
+    .slide-pager-pill {
+      height: 38px;
+      background: rgba(30, 35, 45, 0.95);
+      border: 1px solid #3e4756;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+    .slide-pager-input {
+      background: #11141a;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 2px 8px;
+      color: #fff;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .pager-arrow {
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+      padding: 0 4px;
+    }
+    .pager-arrow:hover { color: #fff; }
+
+    /* SLIDE CANVAS PAPER (16:9) */
+    .slide-paper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: text;
+    }
+    .slide-paper.theme-green {
+      background: var(--slide-green);
+      color: #111827;
+      padding: 44px 54px;
+    }
+    .slide-paper.theme-cream {
+      background: var(--slide-cream);
+      color: #1f2937;
+      padding: 38px 48px;
+    }
+    .slide-watermark {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-18deg);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.22);
+      white-space: nowrap;
+      pointer-events: none !important;
+      font-family: var(--font-mono);
+      z-index: 1;
+    }
+    .slide-spark-topright {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0284c7;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      pointer-events: none;
+    }
+
+    /* APPLIED USER HIGHLIGHT MARKS */
+    mark.user-hl-yellow {
+      background: #fef08a !important;
+      color: #111827 !important;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border-bottom: 2px solid #ca8a04;
+    }
+    mark.user-hl-blue {
+      background: #bae6fd !important;
+      color: #0c4a6e !important;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border-bottom: 2px solid #0284c7;
+      position: relative;
+    }
+    mark.user-hl-blue::after {
+      content: " 💡";
+      font-size: 11px;
+    }
+
+    /* SLIDE 1 SPECIFIC */
+    .slide1-title {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #111827;
+      margin-top: 100px;
+    }
+    .slide1-divider {
+      height: 1.5px;
+      background: #4b6354;
+      width: 100%;
+      margin: 16px 0;
+    }
+    .slide1-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      letter-spacing: 0.04em;
+    }
+
+    /* SLIDE 2 SPECIFIC */
+    .instructor-grid {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 36px;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .instructor-photo {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      border: 2px solid #e5e7eb;
+      background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+      display: grid;
+      place-items: center;
+      font-size: 48px;
+      color: #334155;
+    }
+    .instructor-name {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .instructor-subtitle {
+      font-size: 14px;
+      color: #334155;
+      margin-bottom: 16px;
+    }
+    .instructor-subtitle b { color: #15803d; }
+    .exp-table {
+      width: 100%;
+      font-size: 12.5px;
+      border-collapse: collapse;
+    }
+    .exp-table tr { border-bottom: 1px solid #e5e7eb; }
+    .exp-table td { padding: 7px 0; color: #334155; }
+    .exp-table td.year { width: 90px; font-weight: 700; color: #64748b; }
+
+    /* SLIDE 3 SPECIFIC */
+    .agenda-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 30px;
+    }
+    .agenda-box {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 180px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .agenda-num { font-size: 15px; font-weight: 800; color: #059669; margin-bottom: 6px; }
+    .agenda-box-title { font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.25; margin-bottom: 8px; }
+    .agenda-desc { font-size: 11.5px; color: #475569; line-height: 1.4; }
+    .agenda-foot {
+      font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.06em;
+      text-transform: uppercase; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: 6px;
+    }
+    .agenda-arrow { color: #94a3b8; font-size: 20px; font-weight: 800; pointer-events: none; }
+
+    /* SLIDE 4 SPECIFIC */
+    .part-tag { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; color: #1f2937; text-transform: uppercase; }
+    .slide4-title { font-size: 44px; font-weight: 900; color: #0f172a; margin: 14px 0 10px; }
+    .slide4-sub { font-size: 16px; color: #1e293b; line-height: 1.5; }
+
+    /* SLIDE 5 SPECIFIC */
+    .diamond-title { font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 16px; }
+    .diamond-diagram-html {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 12px; margin: 8px 0 12px; display: grid; grid-template-columns: 1fr auto 1fr;
+      gap: 16px; align-items: center;
+    }
+    .diamond-card-box { border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; background: #fff; text-align: center; }
+    .diamond-card-box.solution { border-color: #059669; background: #f0fdf4; }
+    .diamond-cols-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 10px; }
+    .diamond-col-head { font-size: 12px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+    .diamond-col-head.problem { color: #0284c7; }
+    .diamond-col-head.solution { color: #059669; }
+    .diamond-col-list { list-style: none; font-size: 11.5px; color: #475569; line-height: 1.5; }
+    .diamond-col-list li::before { content: "• "; color: #94a3b8; }
+
+    /* SLIDE 6 SPECIFIC */
+    .phones-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; margin-top: 10px; }
+    .phone-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .phone-mock {
+      width: 100%; aspect-ratio: 100 / 185; border: 1.5px solid #d1d5db; border-radius: 12px;
+      background: #fff; overflow: hidden; opacity: 0.45; position: relative;
+    }
+    .phone-mock.focus { opacity: 1; border-color: #1e293b; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+    .phone-mock-top { height: 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 2px 4px; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
+    .phone-mock-body { padding: 6px 4px; display: grid; gap: 4px; }
+    .phone-box-btn { height: 16px; background: #f1f5f9; border-radius: 3px; font-size: 8px; display: grid; place-items: center; font-weight: 700; }
+    .phone-box-btn.red { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+    .phone-box-btn.blue { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+    .phone-box-btn.green { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .phone-col-label { font-size: 11px; font-weight: 800; color: #334155; }
+    .phone-col-label.faded { color: #94a3b8; }
+    .test-slice-tag { margin-top: 10px; border-top: 2px solid #059669; color: #059669; text-align: center; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; padding-top: 4px; }
+
+    /* RIGHT DOCK */
+    .right-tools-dock {
+      position: fixed;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dock-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #232730;
+      border: 1px solid var(--border-dark);
+      color: #cbd5e1;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all .2s;
+      position: relative;
+    }
+    .dock-btn:hover { background: #2f3542; color: #fff; transform: scale(1.06); }
+    .dock-btn.ai-pill {
+      background: #fff; color: #0284c7; border-radius: 20px 0 0 20px;
+      width: 46px; height: 40px; margin-right: -14px;
+    }
+    .dock-badge {
+      position: absolute; top: -2px; right: -2px; width: 18px; height: 18px;
+      border-radius: 50%; background: #ef4444; color: #fff; font-size: 10px;
+      font-weight: 800; display: grid; place-items: center; border: 2px solid #16181d;
+    }
+
+    /* =======================================================
+       FLOATING SELECTION TOOLBAR (FIXED VIEWPORT COORDS)
+       ======================================================= */
+    .selection-toolbar {
+      position: fixed;
+      display: none;
+      z-index: 99999;
+      background: #1e2430;
+      border: 1.5px solid #0284c7;
+      border-radius: 8px;
+      padding: 5px 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 12px rgba(2, 132, 199, 0.4);
+      gap: 6px;
+      align-items: center;
+      animation: popUp .15s ease;
+      pointer-events: auto;
+    }
+    @keyframes popUp {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .sel-btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 0;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .15s;
+    }
+    .sel-btn:hover { transform: translateY(-1px); }
+    .sel-btn.yellow {
+      background: #ca8a04;
+      box-shadow: 0 2px 6px rgba(202, 138, 4, 0.4);
+    }
+    .sel-btn.blue {
+      background: #0284c7;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+    }
+
+    /* =======================================================
+       POPUP BOX TO TYPE NOTES (KHI CHỌN NOTES)
+       ======================================================= */
+    .note-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100000;
+      display: none;
+      place-items: center;
+      padding: 20px;
+    }
+    .note-modal-overlay.open { display: grid; }
+    .note-modal-card {
+      background: #1b2029;
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      max-width: 520px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      animation: modalZoom .2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    @keyframes modalZoom {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .note-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 10px;
+    }
+    .note-modal-title { font-size: 15px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+    .note-quote-box {
+      background: #13161d;
+      border-left: 3px solid #0284c7;
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 12.5px;
+      color: #94a3b8;
+      font-style: italic;
+      line-height: 1.4;
+      max-height: 70px;
+      overflow-y: auto;
+    }
+    .note-textarea {
+      width: 100%;
+      min-height: 100px;
+      background: #11141a;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px;
+      color: #f3f4f6;
+      font-family: inherit;
+      font-size: 13.5px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+    }
+    .note-textarea:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .note-tags-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .note-tag-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #232832;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .note-tag-chip.active { border-color: #0284c7; background: #075985; color: #fff; }
+    .note-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+    /* =======================================================
+       SAVED REPORTS BOX (HỘP BÁO CÁO ĐÃ LƯU)
+       ======================================================= */
+    .saved-reports-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 90000;
+      display: none;
+      place-items: center;
+      padding: 24px;
+    }
+    .saved-reports-modal.open { display: grid; }
+    .saved-reports-container {
+      background: #181c24;
+      border: 1px solid #3b4252;
+      border-radius: 14px;
+      max-width: 840px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      animation: modalZoom .2s ease;
+      overflow: hidden;
+    }
+    .saved-reports-header {
+      padding: 18px 24px;
+      background: #1e2430;
+      border-bottom: 1px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .saved-reports-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .saved-report-card {
+      background: #14171f;
+      border: 1px solid #2e3646;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .saved-report-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 2px 8px;
+      border-radius: 4px;
+      align-self: flex-start;
+    }
+
+    /* DRAFT REPORT CONTAINER BELOW SLIDES */
+    .report-section-wrap {
+      margin-top: 40px;
+      background: #181c25;
+      border: 2px solid #8b5cf6;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2), 0 20px 40px rgba(0,0,0,0.5);
+      position: relative;
+      transition: all .3s ease;
+    }
+    .report-section-wrap.hidden-after-save {
+      display: none !important;
+    }
+    .saved-banner-container {
+      display: none;
+      margin-top: 30px;
+      background: #13221a;
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      animation: popUp .3s ease;
+    }
+    .saved-banner-container.visible {
+      display: block !important;
+    }
+    .report-badge-top {
+      position: absolute;
+      top: -13px;
+      left: 30px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      padding: 3px 12px;
+      border-radius: 999px;
+    }
+    .report-block {
+      background: #13161d;
+      border: 1px solid #2b3240;
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .report-block-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .editable-input {
+      width: 100%;
+      background: #0f1218;
+      border: 1px solid #0284c7;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: #f3f4f6;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      min-height: 75px;
+      margin-top: 8px;
+      display: none;
+    }
+    .editing .editable-input { display: block; }
+    .editing .report-static-text { display: none; }
+
+    /* ACTION BAR - 3 MANDATORY BUTTONS */
+    .report-action-bar {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .action-question-text {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .action-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-action {
+      padding: 9px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .btn-action:hover { transform: translateY(-2px); }
+    .btn-accept {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    .btn-edit {
+      background: #29303d;
+      border-color: #4b5563;
+      color: #e2e8f0;
+    }
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+    .btn-new-version {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 250000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-left: 4px solid #0284c7;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideInRight .3s ease;
+    }
+    .toast.success { border-left-color: #10b981; }
+    .toast.purple { border-left-color: #8b5cf6; }
+    .toast.danger { border-left-color: #ef4444; }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="top-left">
+        <button class="back-btn" onclick="showToast('Quay lại khóa học')">←</button>
+        <div class="top-title" title="Bài 7 · Day 18 - Design the Experiment - Human-Centered AI Design">
+          Bài 7 · Day 18 - Design the Experiment - Human-Centered AI De...
+        </div>
+      </div>
+      <div class="top-right">
+        <!-- NÚT HỘP BÁO CÁO ĐÃ LƯU -->
+        <button class="report-box-top-btn" onclick="openSavedReportsModal()">
+          <span>📂</span> <span>Hộp Báo Cáo Đã Lưu (<span id="top-saved-count">0</span>)</span>
+        </button>
+
+        <div class="progress-wrap">
+          <div class="progress-text" id="top-progress-text">0/5 bài</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="top-progress-fill"></div>
+          </div>
+        </div>
+        <div class="avatar" title="Trần Tuấn Trung">T</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="side-head">
+          <span>NỘI DUNG BÀI HỌC</span>
+          <button class="sidebar-toggle-btn" onclick="toggleSidebar()">×</button>
+        </div>
+        <div class="module-card">
+          <span>Module 1</span>
+          <small>Slides <span>⌄</span></small>
+        </div>
+        <div class="lesson-section-title">Slides</div>
+        <div class="lesson-list">
+          <button class="lesson-item active" onclick="scrollToSlide(1)">
+            <span class="lesson-state">▶</span>
+            <div class="lesson-meta">
+              <b>Design the Experiment</b>
+              <small>Slide</small>
+            </div>
+          </button>
+          <button class="lesson-item" onclick="showToast('Chuyển sang bài Human-Centered AI Design')">
+            <span class="lesson-state">○</span>
+            <div class="lesson-meta">
+              <b>Human-Centered AI Design</b>
+              <small>Slide</small>
+            </div>
+          </button>
+          <button class="lesson-item" onclick="showToast('Chuyển sang bài Prototype Interview')">
+            <span class="lesson-state">○</span>
+            <div class="lesson-meta">
+              <b>Prototype Interview</b>
+              <small>Slide</small>
+            </div>
+          </button>
+          <button class="lesson-item" onclick="showToast('Chuyển sang bài Help Users Think Aloud')">
+            <span class="lesson-state">○</span>
+            <div class="lesson-meta">
+              <b>Help Users Think Aloud</b>
+              <small>Video</small>
+            </div>
+          </button>
+          <button class="lesson-item" onclick="showToast('Chuyển sang bài User Testing Script')">
+            <span class="lesson-state">○</span>
+            <div class="lesson-meta">
+              <b>User Testing Script - Streamlined</b>
+              <small>Bài đọc</small>
+            </div>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN SLIDE VIEWER -->
+      <main class="main" id="main-scroll" onscroll="handleMainScroll()">
+        <div class="slides-wrapper">
+
+          <!-- SLIDE 1 -->
+          <section class="slide-outer-card active-slide" id="slide-card-1" data-slide="1">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">1</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(2)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-green">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <h1 class="slide1-title">Design the Experiment</h1>
+              <div>
+                <div class="slide1-divider"></div>
+                <div class="slide1-footer">
+                  <span>AI IN ACTION — DAY 18 — TRACK 1</span>
+                  <span>Instructor: Mai Anh Nguyen (Blue)</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SLIDE 2 -->
+          <section class="slide-outer-card" id="slide-card-2" data-slide="2">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">2</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(3)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-cream">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              <div style="font-size: 11px; font-weight: 800; color: #94a3b8; letter-spacing: 0.08em;">INSTRUCTOR</div>
+              <div class="instructor-grid">
+                <div class="instructor-photo">👩‍💼</div>
+                <div>
+                  <div class="instructor-name">Mai Anh Nguyen (Blue)</div>
+                  <div class="instructor-subtitle"><b>Generalist</b> Product Builder</div>
+                  <table class="exp-table">
+                    <tr>
+                      <td class="year">2026</td>
+                      <td><b>FPT Long Châu</b> — PM · Healthcare Product</td>
+                    </tr>
+                    <tr>
+                      <td class="year">2025</td>
+                      <td><b>Thongtincuuho.org</b> — Co-founder</td>
+                    </tr>
+                    <tr>
+                      <td class="year">2025</td>
+                      <td><b>FPT Software AI Center</b> — PM · AI Agent</td>
+                    </tr>
+                    <tr>
+                      <td class="year">2021 – 2025</td>
+                      <td><b>Xantus</b> — PM · On-chain Analytics, AI Agent</td>
+                    </tr>
+                    <tr>
+                      <td class="year">2016 – 2021</td>
+                      <td><b>DYNO, Kalapa</b> — PM · OCR, eKYC, Credit Scoring</td>
+                    </tr>
+                  </table>
+                  <div style="margin-top: 10px; font-size: 12px;">
+                    <a href="#" style="color:#0284c7; text-decoration:none; font-weight:700;">Linkedin</a> &nbsp;|&nbsp; 
+                    <a href="#" style="color:#0284c7; text-decoration:none; font-weight:700;">Facebook</a>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11px; color:#94a3b8; text-align:right;">Kéo đến trang này để mở note riêng của trang.</div>
+            </div>
+          </section>
+
+          <!-- SLIDE 3 -->
+          <section class="slide-outer-card" id="slide-card-3" data-slide="3">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">3</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(4)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-cream">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              <div>
+                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; letter-spacing: 0.06em;">AI IN ACTION · DAY 18 · TRACK 1</div>
+                <h2 style="font-size: 28px; font-weight: 900; color: #0f172a; margin-top: 4px;">Day 18 Agenda</h2>
+              </div>
+              <div class="agenda-grid">
+                <div class="agenda-box">
+                  <div>
+                    <div class="agenda-num">01</div>
+                    <div class="agenda-box-title">Design the Experiment</div>
+                    <div class="agenda-desc">Tạo các lựa chọn đủ khác và xác định điều muốn học.</div>
+                  </div>
+                  <div class="agenda-foot">OPTIONS + INTENT</div>
+                </div>
+                <div class="agenda-arrow">→</div>
+                <div class="agenda-box">
+                  <div>
+                    <div class="agenda-num">02</div>
+                    <div class="agenda-box-title">Human-Centered AI Design</div>
+                    <div class="agenda-desc">Thiết kế kỳ vọng, vai trò, quyền kiểm soát và recovery.</div>
+                  </div>
+                  <div class="agenda-foot">CHOICES + GUARDRAIL</div>
+                </div>
+                <div class="agenda-arrow">→</div>
+                <div class="agenda-box">
+                  <div>
+                    <div class="agenda-num">03</div>
+                    <div class="agenda-box-title">Learn from Users</div>
+                    <div class="agenda-desc">Quan sát hành vi, so sánh trade-off và chọn bước tiếp theo.</div>
+                  </div>
+                  <div class="agenda-foot">BEHAVIOR + NEXT</div>
+                </div>
+              </div>
+              <div style="height: 10px;"></div>
+            </div>
+          </section>
+
+          <!-- SLIDE 4 -->
+          <section class="slide-outer-card" id="slide-card-4" data-slide="4">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">4</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(5)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-green" style="justify-content: center;">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              <div class="part-tag">PART 01</div>
+              <h1 class="slide4-title">Design the Experiment</h1>
+              <p class="slide4-sub">Tạo các lựa chọn đủ khác nhau, và nói trước mình muốn học điều gì.</p>
+            </div>
+          </section>
+
+          <!-- SLIDE 5 -->
+          <section class="slide-outer-card" id="slide-card-5" data-slide="5">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">5</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(6)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-cream">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              
+              <h2 class="diamond-title">
+                Evidence về <span style="color:#c25438;">problem</span> không phải evidence về <span style="color:#2e7d6b;">solution</span>
+              </h2>
+
+              <div class="diamond-diagram-html">
+                <div class="diamond-card-box">
+                  <div style="font-size:10px; font-weight:800; color:#64748b;">DAY 17</div>
+                  <div style="font-size:12.5px; font-weight:900; color:#1e293b;">Finding the PROBLEM</div>
+                  <div style="font-size:10.5px; color:#64748b; font-style:italic; margin-top:2px;">Discover → Define</div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="width:12px; height:12px; border-radius:50%; background:#dc2626; margin:0 auto 2px;"></div>
+                  <div style="font-size:9.5px; font-weight:800; color:#dc2626;">Chosen opportunity</div>
+                </div>
+                <div class="diamond-card-box solution">
+                  <div style="font-size:10px; font-weight:800; color:#059669;">DAY 18</div>
+                  <div style="font-size:12.5px; font-weight:900; color:#065f46;">Finding the SOLUTION</div>
+                  <div style="font-size:10.5px; color:#059669; font-style:italic; margin-top:2px;">Develop → Deliver</div>
+                </div>
+              </div>
+
+              <div class="diamond-cols-grid">
+                <div>
+                  <div class="diamond-col-head problem">DISCOVER</div>
+                  <ul class="diamond-col-list">
+                    <li>Problem interview</li>
+                    <li>Past story</li>
+                    <li>Behavior & workaround</li>
+                    <li>Quan sát context</li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="diamond-col-head problem">DEFINE</div>
+                  <ul class="diamond-col-list">
+                    <li>Synthesis note</li>
+                    <li>Pain pattern</li>
+                    <li>Chọn opportunity</li>
+                    <li>Learning Question</li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="diamond-col-head solution">DEVELOP</div>
+                  <ul class="diamond-col-list">
+                    <li>Diverge cơ chế</li>
+                    <li>Standard / ++ / Wild</li>
+                    <li>Micro-prototype</li>
+                    <li>Multi-option A/B/C</li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="diamond-col-head solution">DELIVER</div>
+                  <ul class="diamond-col-list">
+                    <li>Prototype interview</li>
+                    <li>Quan sát behavior</li>
+                    <li>Compare trade-off</li>
+                    <li>Next iteration</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SLIDE 6 -->
+          <section class="slide-outer-card" id="slide-card-6" data-slide="6">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bôi đen bất kỳ dòng chữ nào để chọn Highlights hoặc Notes!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">6</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToSlide(7)">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-cream">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              <h2 style="font-size: 28px; font-weight: 900; color: #0f172a;">Think big. Start small.</h2>
+              <div class="phones-row">
+                <div class="phone-col">
+                  <div class="phone-mock"><div class="phone-mock-top"><span>9:41</span><span>Tài khoản</span></div><div class="phone-mock-body"><div class="phone-box-btn"></div></div></div>
+                  <div class="phone-col-label faded">Đăng nhập</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock"><div class="phone-mock-top"><span>9:41</span><span>Khám phá</span></div><div class="phone-mock-body"><div class="phone-box-btn"></div></div></div>
+                  <div class="phone-col-label faded">Khoá học</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock"><div class="phone-mock-top"><span>9:41</span><span>Bài 4</span></div><div class="phone-mock-body"><div class="phone-box-btn"></div></div></div>
+                  <div class="phone-col-label faded">Bài học</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock focus"><div class="phone-mock-top"><span>9:41</span><span>Câu 7/10</span></div><div class="phone-mock-body"><div style="font-size:8px; display:flex; justify-content:space-between;"><span>P(A|B)</span><b style="color:#ef4444;">Lần 2</b></div><div class="phone-box-btn red">Chưa đúng</div><div class="phone-box-btn">0,75</div></div></div>
+                  <div class="phone-col-label">Bị mắc</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock focus"><div class="phone-mock-top"><span>9:41</span><span>Trợ giúp AI</span></div><div class="phone-mock-body"><div class="phone-box-btn blue">“Đang lẫn P(A|B)?”</div><div class="phone-box-btn">Đúng vậy</div></div></div>
+                  <div class="phone-col-label">Nhận hỗ trợ</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock focus"><div class="phone-mock-top"><span>9:41</span><span>Câu 7/10</span></div><div class="phone-mock-body"><div class="phone-box-btn" style="background:#fef9c3; color:#854d0e;">Thử lại nhé</div><div class="phone-box-btn green">Tiếp tục</div></div></div>
+                  <div class="phone-col-label">Tiếp tục</div>
+                </div>
+                <div class="phone-col">
+                  <div class="phone-mock"><div class="phone-mock-top"><span>9:41</span><span>Tiến độ</span></div><div class="phone-mock-body"><div class="phone-box-btn"></div></div></div>
+                  <div class="phone-col-label faded">Kết quả</div>
+                </div>
+              </div>
+              <div class="test-slice-tag">TEST SLICE (VÙNG KIỂM THỬ THỰC NGHIỆM TRỌNG TÂM)</div>
+            </div>
+          </section>
+
+          <!-- SLIDE 7 (FINAL SLIDE) -->
+          <section class="slide-outer-card" id="slide-card-7" data-slide="7">
+            <div class="slide-top-bar">
+              <button class="slide-pen-btn" onclick="showToast('Bản Báo cáo Tổng hợp AI Notes ở ngay bên dưới!', 'purple')" title="Ghi chú">✎</button>
+              <div class="slide-pager-pill">
+                <span>Slide</span>
+                <span class="slide-pager-input">7</span>
+                <span>/ 23</span>
+                <span class="pager-arrow" onclick="scrollToReport()">›</span>
+              </div>
+            </div>
+            <div class="slide-paper theme-green" style="padding: 30px;">
+              <div class="slide-watermark">26AI.TRUNGTT@VINUNI.EDU.VN</div>
+              <div class="slide-spark-topright">✦</div>
+              <div>
+                <div class="part-tag">KẾT THÚC BÀI HỌC</div>
+                <h2 style="font-size: 32px; font-weight: 900; color: #0f172a; margin-top: 8px;">
+                  🎉 Bạn đã hoàn thành các Slide bài học Day 18!
+                </h2>
+                <p style="font-size: 14px; color: #1e293b; margin-top: 10px; line-height: 1.5;">
+                  Trợ lý <b>AI Notes</b> đã tự động tổng hợp toàn bộ <b>🟡 Highlights</b> và <b>💡 Ghi chú cá nhân (Notes)</b> vào bản Báo cáo học tập bên dưới.
+                </p>
+              </div>
+              <div style="background: rgba(255,255,255,0.3); border-radius:8px; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:13px;">Bản Báo cáo Tổng hợp AI Notes:</span>
+                <button class="btn-action btn-accept" onclick="scrollToReport()">Xem & Xác nhận Báo Cáo ↓</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- BANNER THÔNG BÁO SAU KHI ĐÃ LƯU BÁO CÁO VÀO HỘP -->
+          <div class="saved-banner-container" id="saved-banner-box">
+            <div style="font-size:32px; margin-bottom:6px;">📂</div>
+            <h3 style="font-size:18px; font-weight:800; color:#34d399; margin-bottom:8px;">
+              Báo cáo học tập bài Day 18 đã được lưu an toàn vào "Hộp Báo Cáo"!
+            </h3>
+            <p style="font-size:13px; color:#cbd5e1; max-width:580px; margin:0 auto 16px;">
+              Báo cáo đã được lưu trữ trong Hộp Báo Cáo cá nhân và không còn hiển thị bên dưới slide. Bạn có thể mở lại bất cứ lúc nào hoặc bấm <b>"Tạo Bản Báo Cáo Mới"</b> để bắt đầu ghi chú đợt mới.
+            </p>
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+              <button class="btn-action btn-accept" onclick="openSavedReportsModal()">
+                <span>📂</span> <span>Mở Hộp Báo Cáo Đã Lưu</span>
+              </button>
+              <button class="btn-action btn-new-version" onclick="createNewReportDraft()">
+                <span>✨</span> <span>Tạo Bản Báo Cáo Mới</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- =======================================================
+               BẢN BÁO CÁO TỔNG HỢP AI NOTES (TỰ ĐỘNG TẠO MỚI KHI THÊM NOTE/HIGHLIGHT)
+               ======================================================= -->
+          <div class="report-section-wrap" id="ai-report-box">
+            <div class="report-badge-top" id="report-version-badge">✦ AI LEARNING REPORT · BẢN HIỆN TẠI</div>
+            
+            <div style="border-bottom:1px solid var(--border-dark); padding-bottom:16px; margin-bottom:18px;">
+              <h2 style="font-size: 20px; font-weight: 900; color: #f8fafc; display:flex; align-items:center; gap:8px;">
+                <span>📄</span> Báo Cáo Tổng Hợp Kiến Thức Cá Nhân Hóa (AI Notes)
+              </h2>
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px; font-size:12px; background:#12151c; padding:10px 14px; border-radius:6px; border:1px solid #282f3c;">
+                <div><b style="color:#94a3b8; font-size:10px; display:block;">MÔN HỌC</b>COMP3011</div>
+                <div><b style="color:#94a3b8; font-size:10px; display:block;">BÀI HỌC</b>Day 18: Design the Experiment</div>
+                <div><b style="color:#94a3b8; font-size:10px; display:block;">HỌC VIÊN</b>Trần Tuấn Trung (2A202601769)</div>
+                <div><b style="color:#94a3b8; font-size:10px; display:block;">TRẠNG THÁI AI</b><span style="color:#10b981;" id="report-live-status">Sẵn sàng tự động cập nhật</span></div>
+              </div>
+            </div>
+
+            <!-- PHẦN 1: TỔNG QUAN -->
+            <div class="report-block">
+              <div class="report-block-title">
+                <span style="color:#38bdf8;">📌</span> Tóm lược trọng tâm bài học (Executive Summary)
+              </div>
+              <div class="report-static-text" id="rep-summary-container">
+                <!-- Dynamically filled -->
+              </div>
+              <textarea class="editable-input" id="edit-summary"></textarea>
+            </div>
+
+            <!-- PHẦN 2: MỤC HIGHLIGHTS -->
+            <div class="report-block" style="border-left: 4px solid #eab308; background:#1a1915;">
+              <div class="report-block-title">
+                <span style="color:#fde047;">🟡</span> Danh sách nội dung Highlights trên Slide (<span id="rep-hl-count">0</span>)
+              </div>
+              <div class="report-static-text" id="rep-hl-container">
+                <!-- Dynamically filled -->
+              </div>
+              <textarea class="editable-input" id="edit-highlights"></textarea>
+            </div>
+
+            <!-- PHẦN 3: MỤC GHI CHÚ CÁ NHÂN (NOTES) -->
+            <div class="report-block" style="border-left: 4px solid #0284c7; background:#151c27;">
+              <div class="report-block-title">
+                <span style="color:#38bdf8;">💡</span> Ghi chú cá nhân (Notes) của bạn (<span id="rep-notes-count">0</span>)
+              </div>
+              <div class="report-static-text" id="rep-notes-container">
+                <!-- Dynamically filled -->
+              </div>
+              <textarea class="editable-input" id="edit-notes"></textarea>
+            </div>
+
+            <!-- =======================================================
+                 BỘ 3 NÚT HÀNH ĐỘNG BẮT BUỘC
+                 ======================================================= -->
+            <div class="report-action-bar">
+              <div class="action-question-text">
+                ⚡ Bạn muốn xử lý bản báo cáo AI Notes này như thế nào?
+              </div>
+              <div class="action-buttons-group">
+                <!-- NÚT 1: CHẤP NHẬN -->
+                <button class="btn-action btn-accept" id="btn-accept" onclick="handleAccept()">
+                  <span>✓</span> <span>Chấp nhận & Lưu vào Hộp Báo Cáo</span>
+                </button>
+                <!-- NÚT 2: SỬA RỒI LƯU -->
+                <button class="btn-action btn-edit" id="btn-edit" onclick="toggleEdit()">
+                  <span>✎</span> <span id="edit-btn-text">Sửa rồi lưu</span>
+                </button>
+                <!-- NÚT 3: XÓA BẢN REPORT -->
+                <button class="btn-action btn-delete" id="btn-delete" onclick="openDeleteModal()">
+                  <span>🗑</span> <span>Xóa bản report</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- FLOATING TEXT SELECTION TOOLBAR -->
+        <div class="selection-toolbar" id="selection-toolbar">
+          <button class="sel-btn yellow" onmousedown="handleToolbarClick(event, 'highlight')">
+            <span>🟡</span> <span>Highlights</span>
+          </button>
+          <button class="sel-btn blue" onmousedown="handleToolbarClick(event, 'notes')">
+            <span>💡</span> <span>Notes</span>
+          </button>
+        </div>
+
+        <!-- RIGHT DOCK TOOLS -->
+        <div class="right-tools-dock">
+          <button class="dock-btn ai-pill" onclick="openSavedReportsModal()" title="Hộp Báo Cáo Đã Lưu">
+            📂
+            <span class="dock-badge" id="dock-badge-count">0</span>
+          </button>
+          <button class="dock-btn" onclick="scrollToReport()" title="Xem Báo cáo">📄</button>
+          <button class="dock-btn" onclick="toggleSidebar()" title="Đóng/Mở Sidebar">☰</button>
+          <button class="dock-btn" onclick="scrollToSlide(1)" title="Về đầu trang">↑</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       HỘP BÁO CÁO ĐÃ LƯU (SAVED REPORTS BOX MODAL)
+       ======================================================= -->
+  <div class="saved-reports-modal" id="saved-reports-modal">
+    <div class="saved-reports-container">
+      <div class="saved-reports-header">
+        <div style="font-size:16px; font-weight:900; color:#fff; display:flex; align-items:center; gap:8px;">
+          <span style="color:#a855f7;">📂</span> HỘP BÁO CÁO ĐÃ LƯU (SAVED REPORTS BOX)
+        </div>
+        <button class="sidebar-toggle-btn" onclick="closeSavedReportsModal()">×</button>
+      </div>
+      <div class="saved-reports-body" id="saved-reports-list-container">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       MODAL NHẬP GHI CHÚ (NOTES BOX POPUP)
+       ======================================================= -->
+  <div class="note-modal-overlay" id="note-modal">
+    <div class="note-modal-card">
+      <div class="note-modal-header">
+        <div class="note-modal-title">
+          <span>💡</span> Thêm Ghi Chú Cá Nhân (AI Notes)
+        </div>
+        <button class="sidebar-toggle-btn" onclick="closeNoteModal()">×</button>
+      </div>
+      <div class="note-quote-box" id="note-modal-quote">
+        “Nội dung vừa chọn trên slide...”
+      </div>
+      <div>
+        <textarea class="note-textarea" id="note-modal-input" placeholder="Nhập ghi chú hoặc thắc mắc của bạn về nội dung này... (AI Notes sẽ tự động tạo và lưu vào Báo cáo mới)"></textarea>
+      </div>
+      <div class="note-tags-row">
+        <span style="font-size:11px; color:#94a3b8; align-self:center;">Gắn nhãn:</span>
+        <button class="note-tag-chip active" onclick="selectNoteTag(this, '💡 Ghi chú quan trọng')">💡 Quan trọng</button>
+        <button class="note-tag-chip" onclick="selectNoteTag(this, '🔴 Chưa hiểu rõ')">🔴 Chưa hiểu</button>
+        <button class="note-tag-chip" onclick="selectNoteTag(this, '🎯 Ý tưởng thực hành')">🎯 Thực hành</button>
+      </div>
+      <div class="note-modal-actions">
+        <button class="btn-action btn-edit" onclick="closeNoteModal()">Hủy bỏ</button>
+        <button class="btn-action btn-accept" onclick="saveNoteModal()">
+          <span>✓</span> <span>Lưu Ghi Chú</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card">
+      <div style="font-size:16px; font-weight:800; color:#f87171; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+        <span>🗑</span> Xác nhận xóa bản báo cáo này?
+      </div>
+      <div style="font-size:13px; color:#94a3b8; line-height:1.5; margin-bottom:18px;">
+        Hành động này sẽ xóa toàn bộ nội dung Highlights và Notes của bản hiện tại để bạn bắt đầu tạo một bản báo cáo mới ngay lập tức mà không cần tải lại trang.
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-action btn-edit" onclick="closeDeleteModal()">Hủy bỏ</button>
+        <button class="btn-action btn-delete" onclick="executeDelete()">Xóa và Bắt đầu Bản Mới</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    // APP STATE
+    let currentSlide = 1;
+    const totalSlides = 7;
+    let isEditing = false;
+    let reportVersionCount = 1;
+    let selectedTextBuffer = '';
+    let selectedSlideBuffer = 1;
+    let selectedTagBuffer = '💡 Ghi chú quan trọng';
+    let savedRange = null;
+
+    // ACTIVE DRAFT CONTENT
+    let highlightedItems = [
+      { text: "01 Design the Experiment (OPTIONS + INTENT) → 02 Human-Centered AI Design → 03 Learn from Users", slide: 3 },
+      { text: "Evidence về problem không phải evidence về solution (Discover → Define → Develop → Deliver)", slide: 5 }
+    ];
+
+    let userNotes = [
+      { 
+        quote: "Evidence về problem không phải evidence về solution", 
+        note: "Cần phỏng vấn thực tế quan sát hành vi, không chỉ hỏi lý thuyết.", 
+        tag: "💡 Quan trọng",
+        slide: 5,
+        aiInsight: "Tự động liên kết vào phương pháp kiểm thử Think Aloud trong bài tập nhóm."
+      },
+      { 
+        quote: "Think big. Start small - Test Slice", 
+        note: "Chỉ làm prototype 3 màn hình cốt lõi lúc học sinh bị mắc.", 
+        tag: "🎯 Thực hành",
+        slide: 6,
+        aiInsight: "Giúp tiết kiệm 80% thời gian làm prototype mà vẫn đo được phản ứng người dùng."
+      }
+    ];
+
+    // SAVED REPORTS VAULT
+    let savedReports = [];
+
+    // SCROLL LISTENER
+    function handleMainScroll() {
+      const main = document.getElementById('main-scroll');
+      const slides = document.querySelectorAll('.slide-outer-card');
+      const scrollMiddle = main.scrollTop + (main.clientHeight / 2);
+
+      slides.forEach((slide, index) => {
+        const top = slide.offsetTop;
+        const bottom = top + slide.offsetHeight;
+        if (scrollMiddle >= top && scrollMiddle <= bottom) {
+          currentSlide = index + 1;
+        }
+      });
+
+      slides.forEach((card, idx) => {
+        if (idx + 1 === currentSlide) card.classList.add('active-slide');
+        else card.classList.remove('active-slide');
+      });
+
+      const scrollBottom = main.scrollTop + main.clientHeight;
+      if (scrollBottom >= main.scrollHeight - 250) {
+        document.getElementById('top-progress-text').innerText = '5/5 bài (100%)';
+        document.getElementById('top-progress-fill').style.width = '100%';
+      }
+    }
+
+    function scrollToSlide(num) {
+      const slide = document.getElementById(`slide-card-${num}`);
+      if (slide) slide.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function scrollToReport() {
+      const rep = document.getElementById('ai-report-box');
+      if (rep && !rep.classList.contains('hidden-after-save')) {
+        rep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        const banner = document.getElementById('saved-banner-box');
+        if (banner) banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.style.display = sb.style.display === 'none' ? 'flex' : 'none';
+      document.querySelector('.body').style.gridTemplateColumns = sb.style.display === 'none' ? '1fr' : '280px 1fr';
+    }
+
+    function showToast(msg, type = 'normal') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = `<span>${type === 'success' ? '✓' : type === 'purple' ? '✦' : type === 'danger' ? '✕' : 'ℹ'}</span> <span>${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => { t.remove(); }, 3200);
+    }
+
+    // =======================================================
+    // ULTRA-RELIABLE TEXT SELECTION LISTENER (FIXED POSITION)
+    // =======================================================
+    function checkTextSelection() {
+      const selection = window.getSelection();
+      const toolbar = document.getElementById('selection-toolbar');
+      
+      if (!selection || selection.isCollapsed) {
+        toolbar.style.display = 'none';
+        return;
+      }
+
+      const text = selection.toString().trim();
+      if (text.length >= 2) {
+        selectedTextBuffer = text;
+        selectedSlideBuffer = currentSlide;
+        try {
+          savedRange = selection.getRangeAt(0).cloneRange();
+          const rect = savedRange.getBoundingClientRect();
+          
+          if (rect.width > 0 && rect.height > 0) {
+            toolbar.style.display = 'flex';
+            toolbar.style.position = 'fixed';
+            toolbar.style.top = `${Math.max(10, rect.top - 48)}px`;
+            toolbar.style.left = `${Math.max(10, rect.left + (rect.width / 2) - 95)}px`;
+          }
+        } catch (err) {
+          toolbar.style.display = 'none';
+        }
+      } else {
+        toolbar.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('mouseup', function(e) {
+      if (e.target.closest('#selection-toolbar') || e.target.closest('#note-modal')) return;
+      setTimeout(checkTextSelection, 10);
+    });
+
+    document.addEventListener('keyup', function(e) {
+      if (e.target.closest('#selection-toolbar') || e.target.closest('#note-modal')) return;
+      setTimeout(checkTextSelection, 10);
+    });
+
+    // ACTION TRIGGERED FROM TOOLBAR
+    function handleToolbarClick(e, action) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const toolbar = document.getElementById('selection-toolbar');
+      toolbar.style.display = 'none';
+
+      if (!selectedTextBuffer) return;
+
+      // Make sure active draft report is visible if user was in saved state
+      ensureDraftReportActive();
+
+      if (action === 'highlight') {
+        applyVisualHighlight('yellow');
+        highlightedItems.unshift({ text: selectedTextBuffer, slide: selectedSlideBuffer });
+        showToast(`✦ AI Notes: Đã tự động tạo và lưu Highlight vào Báo cáo mới!`, 'purple');
+        renderReportContent();
+        window.getSelection().removeAllRanges();
+      } else if (action === 'notes') {
+        openNoteModal(selectedTextBuffer, selectedSlideBuffer);
+      }
+    }
+
+    function applyVisualHighlight(color) {
+      if (savedRange) {
+        try {
+          const span = document.createElement('mark');
+          span.className = color === 'yellow' ? 'user-hl-yellow' : 'user-hl-blue';
+          savedRange.surroundContents(span);
+        } catch (e) {
+          // Cross boundary fallback
+        }
+      }
+    }
+
+    // =======================================================
+    // NOTE POPUP BOX HANDLERS
+    // =======================================================
+    function openNoteModal(quoteText, slideNum) {
+      document.getElementById('note-modal-quote').innerText = `“${quoteText}” (Slide ${slideNum})`;
+      document.getElementById('note-modal-input').value = '';
+      document.getElementById('note-modal').classList.add('open');
+      setTimeout(() => {
+        document.getElementById('note-modal-input').focus();
+      }, 100);
+    }
+
+    function closeNoteModal() {
+      document.getElementById('note-modal').classList.remove('open');
+      window.getSelection().removeAllRanges();
+    }
+
+    function selectNoteTag(el, tag) {
+      document.querySelectorAll('.note-tag-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      selectedTagBuffer = tag;
+    }
+
+    function saveNoteModal() {
+      const noteContent = document.getElementById('note-modal-input').value.trim();
+      if (!noteContent) {
+        showToast('Vui lòng nhập nội dung ghi chú!', 'danger');
+        return;
+      }
+
+      ensureDraftReportActive();
+      applyVisualHighlight('blue');
+
+      userNotes.unshift({
+        quote: selectedTextBuffer,
+        note: noteContent,
+        tag: selectedTagBuffer,
+        slide: selectedSlideBuffer,
+        aiInsight: `AI Notes đã phân tích ngữ cảnh Slide ${selectedSlideBuffer} và gắn thẻ [${selectedTagBuffer}].`
+      });
+
+      closeNoteModal();
+      showToast('✦ AI Notes: Đã tự động tạo và lưu ghi chú vào Báo cáo mới!', 'success');
+      renderReportContent();
+    }
+
+    // ENSURE ACTIVE DRAFT IS VISIBLE
+    function ensureDraftReportActive() {
+      const rep = document.getElementById('ai-report-box');
+      const banner = document.getElementById('saved-banner-box');
+      if (rep.classList.contains('hidden-after-save')) {
+        rep.classList.remove('hidden-after-save');
+        banner.classList.remove('visible');
+        reportVersionCount++;
+        document.getElementById('report-version-badge').innerText = `✦ AI LEARNING REPORT · BẢN MỚI v${reportVersionCount}`;
+        
+        // Reset accept button
+        const btn = document.getElementById('btn-accept');
+        btn.innerHTML = '<span>✓</span> <span>Chấp nhận & Lưu vào Hộp Báo Cáo</span>';
+        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btn.disabled = false;
+      }
+    }
+
+    // CREATE NEW DRAFT EXPLICITLY
+    function createNewReportDraft() {
+      highlightedItems = [];
+      userNotes = [];
+      reportVersionCount++;
+
+      // Remove marks on slide
+      document.querySelectorAll('mark.user-hl-yellow, mark.user-hl-blue').forEach(m => {
+        m.replaceWith(...m.childNodes);
+      });
+
+      document.getElementById('ai-report-box').classList.remove('hidden-after-save');
+      document.getElementById('saved-banner-box').classList.remove('visible');
+      document.getElementById('report-version-badge').innerText = `✦ AI LEARNING REPORT · BẢN MỚI v${reportVersionCount}`;
+
+      const btn = document.getElementById('btn-accept');
+      btn.innerHTML = '<span>✓</span> <span>Chấp nhận & Lưu vào Hộp Báo Cáo</span>';
+      btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      btn.disabled = false;
+
+      renderReportContent();
+      showToast('✨ Đã tạo bản báo cáo mới thành công! Bạn có thể bôi đen chữ trên slide để ghi chú.', 'purple');
+      scrollToSlide(1);
+    }
+
+    // =======================================================
+    // DYNAMIC REPORT RENDERING (NEVER CORRUPTS DOM)
+    // =======================================================
+    function renderReportContent() {
+      // 1. Counters
+      document.getElementById('rep-hl-count').innerText = highlightedItems.length;
+      document.getElementById('rep-notes-count').innerText = userNotes.length;
+
+      // 2. Executive Summary
+      const summaryBox = document.getElementById('rep-summary-container');
+      if (highlightedItems.length === 0 && userNotes.length === 0) {
+        summaryBox.innerHTML = `<i>(Bản báo cáo hiện đang trống. Hãy bôi đen chữ trên slide và chọn <b>"Highlights"</b> hoặc <b>"Notes"</b> để AI tự động tổng hợp nội dung)</i>`;
+      } else {
+        summaryBox.innerHTML = `
+          Bài học Day 18 trang bị tư duy chuyển dịch từ <b>Finding the Problem</b> sang <b>Finding the Solution</b> thông qua thiết kế thực nghiệm tinh gọn <b>Test Slice</b>. Nguyên tắc cốt lõi: <i>"Evidence về problem không phải evidence về solution"</i>; cần thử nghiệm hành vi thật của người dùng với các lựa chọn cơ chế hỗ trợ AI (Proactive vs Silent) thay vì chỉ hỏi ý kiến giả định.
+        `;
+      }
+
+      // 3. Highlights
+      const hlContainer = document.getElementById('rep-hl-container');
+      if (highlightedItems.length === 0) {
+        hlContainer.innerHTML = `<div style="color:#94a3b8; font-size:12.5px; font-style:italic;">Chưa có nội dung highlight. Hãy quét chuột bôi đen chữ trên slide và chọn "Highlights"!</div>`;
+      } else {
+        hlContainer.innerHTML = `
+          <ul style="margin-left: 20px; display:grid; gap:6px; font-size:13px; color:#fef08a;">
+            ${highlightedItems.map(item => `<li><b>[Slide ${item.slide}]</b>: ${item.text}</li>`).join('')}
+          </ul>
+        `;
+      }
+
+      // 4. Notes
+      const notesContainer = document.getElementById('rep-notes-container');
+      if (userNotes.length === 0) {
+        notesContainer.innerHTML = `<div style="color:#94a3b8; font-size:12.5px; font-style:italic;">Chưa có ghi chú cá nhân nào. Hãy quét chuột bôi đen chữ trên slide và chọn "Notes"!</div>`;
+      } else {
+        notesContainer.innerHTML = `
+          <div style="display:grid; gap:10px;">
+            ${userNotes.map(item => `
+              <div style="background:#1b2536; padding:10px 14px; border-radius:6px; border:1px solid #2b394e;">
+                <div style="font-size:11.5px; color:#7dd3fc; font-weight:700; margin-bottom:2px;">
+                  📌 [Slide ${item.slide}] Trích dẫn: “${item.quote}”
+                </div>
+                <div style="color:#f1f5f9; font-size:13px; font-weight:600;">
+                  💬 <b>Ghi chú của bạn:</b> <i>${item.note}</i> <span style="font-size:11px; background:#0369a1; color:#fff; padding:1px 6px; border-radius:3px; margin-left:4px;">${item.tag}</span>
+                </div>
+                <div style="color:#93c5fd; font-size:12px; margin-top:4px; border-top:1px solid #29384e; padding-top:4px;">
+                  🤖 <b>AI Notes Insight:</b> ${item.aiInsight}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    // =======================================================
+    // 3 MANDATORY ACTIONS & SAVED REPORTS VAULT
+    // =======================================================
+
+    // 1. CHẤP NHẬN: CHUYỂN BÁO CÁO VÀO HỘP VÀ ẨN BÊN DƯỚI SLIDE
+    function handleAccept() {
+      const summaryText = document.getElementById('rep-summary-container').innerText.trim();
+      
+      const newReport = {
+        id: Date.now(),
+        version: `v${reportVersionCount}`,
+        course: "COMP3011 - Day 18: Design the Experiment",
+        student: "Trần Tuấn Trung (2A202601769)",
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('vi-VN'),
+        summary: summaryText,
+        highlights: [...highlightedItems],
+        notes: [...userNotes]
+      };
+
+      savedReports.unshift(newReport);
+      updateSavedReportsUI();
+
+      // ẨN BẢN REPORT DƯỚI SLIDE VÀ HIỆN BANNER
+      document.getElementById('ai-report-box').classList.add('hidden-after-save');
+      document.getElementById('saved-banner-box').classList.add('visible');
+
+      document.getElementById('top-progress-text').innerText = '5/5 bài (100%)';
+      document.getElementById('top-progress-fill').style.width = '100%';
+
+      showToast('🎉 Báo cáo đã được lưu vào "Hộp Báo Cáo" thành công!', 'success');
+
+      setTimeout(() => {
+        openSavedReportsModal();
+      }, 400);
+    }
+
+    // 2. SỬA RỒI LƯU
+    function toggleEdit() {
+      const box = document.getElementById('ai-report-box');
+      const btn = document.getElementById('btn-edit');
+      const lbl = document.getElementById('edit-btn-text');
+
+      if (!isEditing) {
+        isEditing = true;
+        box.classList.add('editing');
+        btn.style.background = '#0284c7';
+        btn.style.color = '#fff';
+        lbl.innerText = '💾 Lưu thay đổi';
+
+        document.getElementById('edit-summary').value = document.getElementById('rep-summary-container').innerText.trim();
+        document.getElementById('edit-highlights').value = document.getElementById('rep-hl-container').innerText.trim();
+        document.getElementById('edit-notes').value = document.getElementById('rep-notes-container').innerText.trim();
+        showToast('Chế độ sửa bật: Bạn có thể chỉnh sửa trực tiếp nội dung rồi bấm "Lưu thay đổi".');
+      } else {
+        isEditing = false;
+        box.classList.remove('editing');
+        btn.style.background = '#29303d';
+        btn.style.color = '#e2e8f0';
+        lbl.innerText = 'Sửa rồi lưu';
+
+        document.getElementById('rep-summary-container').innerText = document.getElementById('edit-summary').value;
+        showToast('✓ Đã lưu các chỉnh sửa vào bản Báo cáo!', 'success');
+      }
+    }
+
+    // 3. XÓA BẢN REPORT VÀ BẮT ĐẦU BẢN MỚI
+    function openDeleteModal() { document.getElementById('delete-modal').classList.add('open'); }
+    function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); }
+    function executeDelete() {
+      closeDeleteModal();
+      createNewReportDraft();
+      showToast('Đã xóa bản báo cáo cũ và tạo mới một bản báo cáo sẵn sàng cho bạn.', 'danger');
+    }
+
+    // =======================================================
+    // SAVED REPORTS BOX MODAL CONTROLS
+    // =======================================================
+    function openSavedReportsModal() {
+      renderSavedReportsList();
+      document.getElementById('saved-reports-modal').classList.add('open');
+    }
+
+    function closeSavedReportsModal() {
+      document.getElementById('saved-reports-modal').classList.remove('open');
+    }
+
+    function updateSavedReportsUI() {
+      const count = savedReports.length;
+      document.getElementById('top-saved-count').innerText = count;
+      document.getElementById('dock-badge-count').innerText = count;
+    }
+
+    function renderSavedReportsList() {
+      const container = document.getElementById('saved-reports-list-container');
+      if (savedReports.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
+            <div style="font-size:42px; margin-bottom:10px;">📂</div>
+            <b style="font-size:15px; color:#e2e8f0; display:block; margin-bottom:4px;">Chưa có báo cáo nào trong Hộp Báo Cáo!</b>
+            <p style="font-size:12.5px;">Hãy xem hết bài giảng đến slide cuối cùng và bấm <b>"Chấp nhận & Lưu vào Hộp Báo Cáo"</b> để lưu trữ vào đây.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = savedReports.map((rep, idx) => `
+        <div class="saved-report-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span class="saved-report-badge">✓ ĐÃ LƯU TRỮ VÀO HỘP (${rep.version})</span>
+              <h3 style="font-size:16px; font-weight:800; color:#fff; margin-top:6px;">${rep.course}</h3>
+              <div style="font-size:11.5px; color:#94a3b8; margin-top:2px;">
+                Học viên: <b style="color:#e2e8f0;">${rep.student}</b> · Lưu lúc: ${rep.timestamp}
+              </div>
+            </div>
+            <button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteSavedReport(${idx})">🗑 Xóa</button>
+          </div>
+
+          <div style="background:#0f1218; padding:12px 14px; border-radius:6px; border:1px solid #282f3c; font-size:12.5px; color:#cbd5e1; line-height:1.5;">
+            <b style="color:#38bdf8; display:block; margin-bottom:4px;">📌 Tóm lược cốt lõi:</b>
+            ${rep.summary}
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="background:#1a1915; padding:10px 12px; border-radius:6px; border-left:3px solid #eab308; font-size:12px;">
+              <b style="color:#fde047; display:block; margin-bottom:4px;">🟡 Highlights (${rep.highlights.length}):</b>
+              <ul style="margin-left:16px; color:#fef08a; display:grid; gap:4px;">
+                ${rep.highlights.length === 0 ? '<li><i>Không có highlight</i></li>' : rep.highlights.map(h => `<li>[Slide ${h.slide}]: ${h.text}</li>`).join('')}
+              </ul>
+            </div>
+            <div style="background:#151c27; padding:10px 12px; border-radius:6px; border-left:3px solid #0284c7; font-size:12px;">
+              <b style="color:#38bdf8; display:block; margin-bottom:4px;">💡 Ghi chú (${rep.notes.length}):</b>
+              <div style="display:grid; gap:6px; color:#bae6fd;">
+                ${rep.notes.length === 0 ? '<div><i>Không có ghi chú</i></div>' : rep.notes.map(n => `<div>• <i>"${n.quote}"</i><br>↳ <b>Note:</b> ${n.note}</div>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteSavedReport(idx) {
+      savedReports.splice(idx, 1);
+      updateSavedReportsUI();
+      renderSavedReportsList();
+      showToast('Đã xóa báo cáo khỏi Hộp Báo Cáo.', 'danger');
+    }
+
+    // INITIAL RENDER
+    renderReportContent();
+    updateSavedReportsUI();
+  </script>
+</body>
+</html>
