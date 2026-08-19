@@ -36,8 +36,8 @@ Cùng target user, situation, task, content fixture và desired outcome. Khác *
 
 | Option | Mô tả ngắn | Prototype (mở được trong repo) |
 | --- | --- | --- |
-| **A – User tự tổ chức** | Gom note về một nơi. Học viên tự phân cụm và tự viết diễn giải. AI Don’t Act. |
-| **B – User + AI đồng tạo** | User chọn note → AI đề xuất nhóm/context → user sửa, gộp, tách, reject rồi mới chốt bản ôn. |
+| **A – User tự tổ chức** | Gom note về một nơi. Học viên tự phân cụm và tự viết diễn giải. AI Don’t Act. | https://github.com/Ntduc112/Track1_Day_18_team_ABC_D303_NguyenTrongDuc
+| **B – User + AI đồng tạo** | User chọn note → AI đề xuất nhóm/context → user sửa, gộp, tách, reject rồi mới chốt bản ôn. | https://github.com/Lsdfs/Track1_Day_18_2A202601739_ChuThiYenKhanh
 | **C – AI gen report, user review** | Có highlight/note hoặc hết bài → AI tự phân cụm thành report có cấu trúc → user sửa, lưu, xóa. | [UI/solution_C.html](UI/solution_C.html) |
 
 Link đủ A/B/C: [prototype-link.md](prototype-link.md).
